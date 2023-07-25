@@ -1,11 +1,20 @@
 const canvas = document.querySelector('canvas')
 const ctx = canvas.getContext('2d')
 
+const score = document.querySelector('.score--value')
+const finalscore = document.querySelector('.final-score > span')
+const menu = document.querySelector('.menu-screen')
+const buutonplay = document.querySelector('.btn-paly')
 const size = 30
 const audio = new Audio('../assets/audio.mp3')
-const snake = [{ x: 0, y: 0 }]
+const initiPosition = { x: 270, y: 240 }
+
+let snake = [initiPosition]
 const randonumber = (min, max) => {
   return Math.round(Math.random() * (max - min) + min)
+}
+const incrementoscore = () => {
+  score.innerText = +score.innerText + 10
 }
 const randomPosition = () => {
   const number = randonumber(0, canvas.width - size)
@@ -83,6 +92,7 @@ const moverSnake = () => {
 const chackEat = () => {
   const head = snake[snake.length - 1]
   if (head.x == food.x && head.y == food.y) {
+    incrementoscore()
     snake.push(head)
     audio.play()
     let x = randomPosition()
@@ -111,10 +121,24 @@ const gameloop = () => {
 }
 const checkCollision = () => {
   const head = snake[snake.length - 1]
+  const canvasLinit = canvas.width - size
+  const neckIndex = snake.length - 2
 
-  if (head.x < 0 || head.x > 570 || head.y < 0 || head.y > 570) {
-    alert('voce perdeu')
+  const wallcolisson =
+    head.x < 0 || head.x > canvasLinit || head.y < 0 || head.y > canvasLinit
+
+  const setfcollission = snake.find((position, index) => {
+    return index < neckIndex && position.x == head.x && position.y == head.y
+  })
+  if (wallcolisson || setfcollission) {
+    gamerOver()
   }
+}
+const gamerOver = () => {
+  direction = undefined
+  menu.style.display = 'flex'
+  finalscore.innerText = score.innerText
+  canvas.style.filter = 'blur(2px)'
 }
 gameloop()
 
@@ -132,4 +156,10 @@ document.addEventListener('keydown', ({ key }) => {
   if (key == 'ArrowUp' && direction != 'down') {
     direction = 'up'
   }
+})
+buutonplay.addEventListener('click', () => {
+  score.innerText = '00'
+  menu.style.display = 'none'
+  canvas.style.filter = 'none'
+  snake = [initiPosition]
 })
